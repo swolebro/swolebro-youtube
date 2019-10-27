@@ -1,8 +1,8 @@
 /* A braindead plasma torch THC. Goes along with the board schematic in this repo.
 
 The gist of how this is works is, on startup, you read the potentiometer and
-pick a set point. Then it reads the pin for the plasma, does comparisons to
-that setpoint, and triggers the optocouplers accordingly.
+pick a set point. Then it reads the analog pin for the plasma voltage, does
+comparisons to that setpoint, and triggers the optocouplers accordingly.
 
 There's a little bit of smoothing that goes into to the ADC reads to improve
 the signal's stability a bit, but we can't do too much, since otherwise, the
@@ -15,14 +15,17 @@ able to do about 6000 samples per second, whereas the maximum you could get
 from simply looping analogRead() is supposed to be 9000 samples per second
 (with 10 bit precision).
 
-Two more noteworthy quirks. Firstly, while we let the signals for the plasma
-change rather rapidly, we only update the display several times a second and
-give it a much, much longer average. This just makes it easier on the eyes.
+Two more noteworthy quirks:
+
+Firstly, while we let the signals for the plasma change rather rapidly, we only
+update the display several times a second and give it a much, much longer
+average. This just makes it easier on the eyes.
+
 Secondly, this is going to be giving the "UP" signal whenever the plasma
 is not cutting (since the voltage will be 0), so it is important to use
 LinuxCNC's HAL configs to only respect the THC's signals once the torch is
 cutting and is not piercing or cornering. The "thcud" component should help
-with that.
+with that, as well as additional YouTube videos and files coming soon.
 
 (c) The Swolesoft Development Group, 2019
 License: http://250bpm.com/blog:82
@@ -39,9 +42,9 @@ byte digitPins[4] = {12, 10, 9, 2};
 byte segmentPins[8] = {13, 8, 4, 6, 7, 11, 3, 5};
 
 // Setting the scale for the converting analogRead values to volts.
-// I dunno if the compiler will optimize this arithmetic, so I'm gonna do it myself.
-// 4.450 AREF voltage * 50 built-in voltage divider / 1023 resolution
-#define SCALE 2.1749755e-1
+// 4.450 AREF voltage * 50 built-in voltage divider / 1023 resolution = 0.21749755 ADC counts per volt
+// As far as I can tell, the arithmetic below *does* get optimized out by the compiler.
+#define SCALE (4.450*50/1023)
 
 // Threshold in ADC counts for when we say the torch is out of range.
 // Multiply by SCALE for the threshold in volts.
@@ -86,21 +89,22 @@ unsigned long ms = 0;
 
 void setup() {
 
+  // The usual.
   pinMode(ADJUST, INPUT);
   pinMode(PLASMA, INPUT);
   pinMode(UP, OUTPUT);
   pinMode(DOWN, OUTPUT);
 
-  // Set the reference voltage to the external 1.865
+  // Set the reference voltage to the external linear regulator
   // Do a few throwaway reads so the ADC stabilizes, as recommended by the docs.
   analogReference(EXTERNAL);
   analogRead(PLASMA); analogRead(PLASMA); analogRead(PLASMA); analogRead(PLASMA); analogRead(PLASMA);
 
+
+  // Set up the LCD. Set an easily identifiable string (looks like "ABCD" all caps)
+  // and show it for a moment. This makes it easy to see when the arduino reboots.
   sevseg.begin(COMMON_CATHODE, numDigits, digitPins, segmentPins, 0, 0, 1);
   sevseg.setBrightness(50);
-
-  // Set the LCD to an easily identifiable string (looks like "ABCD" all caps)
-  // and show it for a moment. This makes it easy to see when the arduino reboots.
   sevseg.setChars("a8c0");
   for (i = 0; i < 500; i++) {
     sevseg.refreshDisplay();
@@ -140,8 +144,7 @@ void setup() {
     sevseg.refreshDisplay();
   }
 
-  // Convert the voltage target back into an int, for ADC comparison.
-  // This makes up for how SETWID different values give the same voltage increment.
+  // Convert the voltage target back into an int, for ADC comparison, with the scale the plasma pin uses.
   target = ftmp / SCALE;
 
   // Before carrying on, we now reset some of those variables.
