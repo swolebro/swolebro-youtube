@@ -51,11 +51,8 @@ byte segmentPins[8] = {13, 8, 4, 6, 7, 11, 3, 5};
 #define THRESH 5
 
 // Adjustment range for the knob.
-// Minimum value, the width of each increment (in ADC counts),
-// and the size of each increment step.
 #define MINSET 110
-#define SETWID 12
-#define SETINC 0.5
+#define MAXSET 150
 
 // Naming other pins.
 #define ADJUST A0
@@ -78,12 +75,14 @@ int mode = -1;
 // generic temp vars
 unsigned long tmp = 0;
 float ftmp = 0;
+float ftmp2 = 0;
 
 // generic looping vars
 int i = 0;
 int j = 0;
 
-unsigned long timestep = 0;
+// for the startup adjustment period
+unsigned long timelimit = 0;
 unsigned long ms = 0;
 
 
@@ -117,23 +116,25 @@ void setup() {
   // avoid any nonsense from potentiometer drift, and don't need to think about the
   // capacitance of the ADC muxer.
   ms = millis();
-  timestep = ms + 5000;
-  while (ms < timestep) {
+  timelimit = ms + 5000;
+
+  while (ms < timelimit) {
     tmp = analogRead(ADJUST);
 
-    // Keep a rotating total, buffer, and average.
-    // Since this value doesn't really move, 10 samples is fine.
+    // Keep a rotating total, buffer, and average.  Since this value only moves
+    // a small amount due to noise in the AREF voltage and the physical
+    // potentiometer itself, 10 samples is fine.
     total = total + tmp - values[i];
     values[i] = tmp;
     target = total / 10;
 
-    // We use a different scale here, so we get nice 0.5V
-    // increments in the range that matters for our plasma.
-    if (ftmp != ((MINSET + (target / SETWID) * SETINC))) {
+    // Calculate the setpoint, based on min/max, and chop it to one decimal point.
+    ftmp2 = MINSET + ((MAXSET-MINSET) * (target/1023.0));
+    ftmp2 = ((int) (ftmp2*10))/10.0;
 
-      // can't get fancy and assign it in the comparison, womp womp
-      ftmp = ((MINSET + (target / SETWID) * SETINC));
-      timestep = max(timestep, ms + 2000);
+    if (ftmp != ftmp2) {
+      ftmp = ftmp2;
+      timelimit = max(timelimit, ms + 2000);
       sevseg.setNumber(ftmp, 1);
     }
 
