@@ -60,10 +60,13 @@ byte segmentPins[8] = {13, 8, 4, 6, 7, 11, 3, 5};
 #define UP A2
 #define DOWN A3
 
-#define BUFSIZE 512  // Would technically let us do running averages up to 512 samples.
-#define SAMPSHIFT 4  // Use 2^x samples in the average; see note at end re:modular arithmetic.
+#define BUFSIZE 512  // Would technically let us do running averages up to BUFSIZE samples. In testing, shorter averages seemed better.
+#define SAMP 16  // Use this many samples in the average; must be a power of 2 and no larger than BUFSIZE.
+#define DISP 1024 // The number of samples to use in calculating a slower average for the display. Must also be a power of 2.
 
-unsigned int values[BUFSIZE]; // buffer for ADC reads
+unsigned int shift = 0;
+
+unsigned int values[BUFSIZE] = {0}; // buffer for ADC reads
 unsigned long total = 0; // for keeping a rolling total of the buffer
 unsigned long disp = 0;  // for separately tracking ADC reads for the display
 unsigned long target = 0; // voltage target, in ADC counts
@@ -99,6 +102,11 @@ void setup() {
   analogReference(EXTERNAL);
   analogRead(PLASMA); analogRead(PLASMA); analogRead(PLASMA); analogRead(PLASMA); analogRead(PLASMA);
 
+  // We need to calculate how big the shift must be, for a given sample size.
+  // Since we are using bitshifting instead of division, I'm using a != here,
+  // so your shit will be totally broke if you don't set SAMP to a power of 2.
+  while((1 << shift) != SAMP)
+    shift++;
 
   // Set up the LCD. Set an easily identifiable string (looks like "ABCD" all caps)
   // and show it for a moment. This makes it easy to see when the arduino reboots.
@@ -169,7 +177,7 @@ void loop() {
   values[i] = tmp;
 
   // This mean truncates downwards. Oh well. At least it's fast.
-  diff = ((total >> SAMPSHIFT) - target);
+  diff = ((total >> shift) - target);
 
   // Set pins as per reading. Set lows first to turn off one direction before turning on reverse.
   // Checking for current setting before flipping saves a few cycles.
@@ -196,19 +204,17 @@ void loop() {
 
   }
 
-  // Every 1024 reads, update what's displayed on the screen with a slower average.
+  // Every DISP reads, update what's displayed on the screen with a slower average.
   // This would be roughly 5 or 6 times per second at our current speeds.
   if (!j) {
-    sevseg.setNumber((float) ((disp / 1024) * SCALE), 1);
+    sevseg.setNumber((float) ((disp / DISP) * SCALE), 1);
     disp = 0;
   }
 
   // Need this to keep the display lit up.
   sevseg.refreshDisplay();
 
-  // Faster than mod 16 and mod 1024.
-  // This 15 should be based on SAMPSHIFT, in case you want to change the rolling mean window...
-  // Need to double-check that the Arduino compiler will optimize that out if I write it that way.
-  i = (i + 1) & 15;
-  j = (j + 1) & (1023);
+  // Faster than modular arithmetic, by far. Doing that drops us down to ~3kS/sec.
+  i = (i + 1) & (SAMP - 1);
+  j = (j + 1) & (DISP - 1);
 }
