@@ -179,27 +179,28 @@ void loop() {
   // This mean truncates downwards. Oh well. At least it's fast.
   diff = ((total >> shift) - target);
 
-  // Set pins as per reading. Set lows first to turn off one direction before turning on reverse.
-  // Checking for current setting before flipping saves a few cycles.
+  // Set pins as per reading. Set 0's first to turn off one direction before turning on reverse.
+  // Checking for current setting before flipping saves a few cycles. We should never have both
+  // the UP and DOWN pins set to 1 - that would be nonsense.
   if (diff > THRESH) {
     if (mode != 2) {
       mode = 2;
-      digitalWrite(UP, LOW);
-      digitalWrite(DOWN, HIGH);
+      digitalWrite(UP, 0);
+      digitalWrite(DOWN, 1);
     }
 
   } else if (diff < -THRESH) {
     if (mode != 1) {
       mode = 1;
-      digitalWrite(DOWN, LOW);
-      digitalWrite(UP, HIGH);
+      digitalWrite(DOWN, 0);
+      digitalWrite(UP, 1);
     }
 
   } else {
     if (mode != 0) {
       mode = 0;
-      digitalWrite(UP, LOW);
-      digitalWrite(DOWN, LOW);
+      digitalWrite(UP, 0);
+      digitalWrite(DOWN, 0);
     }
 
   }
