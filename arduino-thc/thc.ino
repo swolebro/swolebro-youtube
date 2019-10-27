@@ -115,6 +115,7 @@ void setup() {
   // By fixing this after boot, we save cycles from needing to do two ADC reads per loop(),
   // avoid any nonsense from potentiometer drift, and don't need to think about the
   // capacitance of the ADC muxer.
+  i=0;
   ms = millis();
   timelimit = ms + 5000;
 
