@@ -22,8 +22,6 @@ net spindle-cmd-rps     <= motion.spindle-speed-out-rps
 net spindle-cmd-rps-abs <= motion.spindle-speed-out-rps-abs
 net spindle-at-speed    => motion.spindle-at-speed
 net spindle-on <= motion.spindle-on
-net din-01 => motion.digital-in-01
-net din-02 => motion.digital-in-02
 
 setp parport.0.pin-01-out-invert 1
 net spindle-on      => parport.0.pin-01-out
@@ -36,8 +34,6 @@ net zdir            => parport.0.pin-07-out
 net xstep           => parport.0.pin-08-out
 net xdir            => parport.0.pin-09-out
 net all-limit-home  <= parport.0.pin-10-in
-net din-01          <= parport.0.pin-11-in
-net din-02          <= parport.0.pin-12-in
 net estop-ext       <= parport.0.pin-15-in-not
 setp lut5.0.function 0x10000
 net all-limit-home => lut5.0.in-4

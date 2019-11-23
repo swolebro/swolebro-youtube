@@ -1,0 +1,48 @@
+o<probe> sub
+M64 P1  (enable probe)
+G4 P0.25 (let relays make solid contact)
+
+#<curr_z> = #<_z>
+
+; if the probe is already making contact
+; your torch is probably clogged with schmoo
+M66 P0 L0
+o104 if [#5399 EQ 1]
+    (msg, check your torch)
+    G28 Z#<_z>
+    M0
+    G0 Z[ #<curr_z> ]
+o104 endif
+
+; if starting high, do a fast probe first.
+o100 if [ #<curr_z> GT 0.2 ]
+    G38.3 Z0.2 F99
+
+    ; if found, zero out, pull up for the slow probe
+    o101 if [ #5070 EQ 1 ]
+        G92 Z0
+        G0 Z0.2
+    o101 endif
+
+o100 endif
+
+G38.3 Z-0.2 F3 (slow probe, bottom limit)
+
+; Pause if failed.
+; Probably ought to restart the program on this one,
+; from wherever this occurred.
+o102 if [ #5070 NE 1 ]
+    (msg, probe failed)
+    G28 Z#<_z>
+	M0
+o102 endif
+
+; Move up slowly until you break contact. Using the
+; starting Z ensures that it's a safe Z move.
+G38.5 Z#<curr_z> F0.5
+
+G92 Z0 (set new Z)
+M65 P1  (disable probe)
+
+o<probe> endsub
+M2

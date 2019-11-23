@@ -21,3 +21,7 @@ net parport-ohmic parport.0.pin-11-in-not => or2.0.in0
 net xbox-y or2.0.in1
 
 net ohmic-found or2.0.out => motion.probe-input
+
+# Also rig this probe up to something the gcode can check,
+# as a safety feature.
+net ohmic-found => motion.digital-in-00
