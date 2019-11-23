@@ -1,5 +1,22 @@
-# HAL configurations for torch height control.
-# Right now, that's just ohmic probing. THC comes next.
+# HAL configurations for torch height control and ohmic probing.
+
+# Note that this is still a work in progress, and my setup is missing a few
+# things, like a floating mount switch, magnetic breakaway (as a backup for
+# fuckups), or an arc-OK signal. Caveat emptor, and all the usual caveats.
+
+# For a now-half-broken simulation using an older thcud, see:
+# https://forum.linuxcnc.org/49-basic-configuration/26552-thc-up-down-simulator
+
+# For an alternate, pure-HAL solution that's kiiinda complex, see:
+# https://forum.linuxcnc.org/plasma-laser/34978-thc-plasma-configs-with-how-to
+
+# For the new plasmac component, that reimplements the above one in a single
+# black box, but still, is kinda complex, and not yet available for a stable
+# LinuxCNC release, see this 178 page forum thread:
+# https://forum.linuxcnc.org/plasma-laser/35449-another-plasma-component
+
+# Personally, I'm a fan of KISS. Also Kernighan's Law.
+# I need things to be at least as dumb as I am - preferably even more dumber.
 
 loadrt or2
 loadrt bitwise
@@ -7,6 +24,7 @@ loadrt conv_u32_bit
 loadrt conv_s32_u32
 loadrt and2
 loadrt not
+loadrt thcud
 
 addf or2.0 servo-thread
 addf bitwise.0 servo-thread
@@ -14,6 +32,9 @@ addf conv-u32-bit.0 servo-thread
 addf conv-s32-u32.0 servo-thread
 addf and2.0 servo-thread
 addf not.0 servo-thread
+addf thcud servo-thread
+
+# ==== Probing ====
 
 # Use M64 P1 to trigger this relay for activating the ohmic probe circuit. This
 # **must** be disabled (M65 P1) before cutting, or the plasma voltage will kill
@@ -52,3 +73,54 @@ net ohmic-found or2.0.out => motion.probe-input
 # Also rig this probe up to something the gcode can check,
 # as a safety feature.
 net ohmic-found => motion.digital-in-00
+
+# ==== THC ====
+
+# This is the foremost check, which lets you enable/disable all of thcud's
+# functionality without hacking up your HAL.
+setp thcud.enable TRUE
+
+# Bypass this thcud check, since I don't have an arc-ok signal.
+setp thcud.arc-ok TRUE
+
+# We're gonna start off with manual torch height control via the XBox 360
+# controller. So, we will also bypass the thcud velocity checks.
+setp thcud.current-vel 1
+setp thcud.requested-vel 1
+setp thcud.velocity-tol 1
+
+# Apart from the "enable" check, there's a secondary check
+# to only compute and apply offsets while the torch is running.
+net spindle-on thcud.torch-on
+
+# Contrary to the name, this isn't so much a correction velocity as it is
+# the amount of correction applied every time the signal is read. The resulting
+# velocity then depends on how fast your servo-thread runs.
+
+# Too low, and your corrections won't be fast enough to keep up. Too high, and
+# they will overshoot, possibly drastically. For example, if your servo thread
+# runs every 1ms, and you set this to .001, then your machine could register a
+# 1" offset in a second - far more than it probably needs and far faster than
+# it could even keep up with.
+setp thcud.correction-vel 0.00005
+
+# This is important.
+# This keeps our direct commands to stepgen from trying to go
+# crazy fast. Normally it's set to 0, which appears to not limit
+# it at all, and the limiting was done by passing the position
+# commands to the axis. Since we subvert that standard method
+# with thcud, we need to explicit set this cap.
+setp stepgen.2.maxvel [AXIS_2]MAX_VELOCITY
+
+# Rather than tying axis.2.motor-pos-cmd directly to
+# stepgen.2.position-cmd, we feed that into thcud first,
+# then direct the output to stepgen. Then we report back
+# a false location to the axis to keep it unaware. That's
+# the real magic here.
+net zpos axis.2.motor-pos-cmd => thcud.z-pos-in
+net thc-pos-out thcud.z-pos-out => stepgen.2.position-cmd
+net thc-pos-fb thcud.z-fb-out => axis.2.motor-pos-fb
+
+# Lastly, our signals for up and down.
+net xbox-x thcud.torch-up
+net xbox-a thcud.torch-down

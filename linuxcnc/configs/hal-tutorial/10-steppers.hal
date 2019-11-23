@@ -78,8 +78,9 @@ setp stepgen.2.stepspace 1
 setp stepgen.2.dirhold 15500
 setp stepgen.2.dirsetup 15500
 setp stepgen.2.maxaccel [AXIS_2]STEPGEN_MAXACCEL
-net zpos-cmd axis.2.motor-pos-cmd => stepgen.2.position-cmd
-net zpos-fb stepgen.2.position-fb => axis.2.motor-pos-fb
+# thcud uses these.
+#net zpos-cmd axis.2.motor-pos-cmd => stepgen.2.position-cmd
+#net zpos-fb stepgen.2.position-fb => axis.2.motor-pos-fb
 net zstep <= stepgen.2.step
 net zdir <= stepgen.2.dir
 net zenable axis.2.amp-enable-out => stepgen.2.enable
