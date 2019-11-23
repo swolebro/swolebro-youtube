@@ -1,0 +1,11 @@
+# These files store persistent RS274 parameters.
+# See documentation section 5.2.3.
+# I don't expect you to need a changelog for these
+# things, and personally, I don't use them at all,
+# so, ignored. 
+linuxcnc.var
+linuxcnc.var.bak
+
+# Likewise, as per documentation section 6.1.2, I
+# don't use or need the data in the tool changer file.
+tool.tbl
