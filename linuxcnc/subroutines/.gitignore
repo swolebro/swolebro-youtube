@@ -1,0 +1,5 @@
+# You probably don't want to ignore anything in this directory, tbh.
+# This file is more of a place-holder for the empty directory.
+
+# Files in here define CNC functions that you can call from gcode or the
+# MDI console.

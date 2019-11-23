@@ -1,0 +1,7 @@
+# Ingore everything here.
+
+# Except this file.
+!.gitignore
+
+# Hell, this one too.
+!default.ngc
