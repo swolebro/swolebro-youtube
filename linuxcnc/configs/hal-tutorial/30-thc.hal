@@ -2,7 +2,18 @@
 # Right now, that's just ohmic probing. THC comes next.
 
 loadrt or2
+loadrt bitwise
+loadrt conv_u32_bit
+loadrt conv_s32_u32
+loadrt and2
+loadrt not
+
 addf or2.0 servo-thread
+addf bitwise.0 servo-thread
+addf conv-u32-bit.0 servo-thread
+addf conv-s32-u32.0 servo-thread
+addf and2.0 servo-thread
+addf not.0 servo-thread
 
 # Use M64 P1 to trigger this relay for activating the ohmic probe circuit. This
 # **must** be disabled (M65 P1) before cutting, or the plasma voltage will kill
@@ -18,7 +29,23 @@ setp parport.0.pin-17-out-invert 1
 # better, but I haven't added that to my machine yet, so babysitting will do.
 # Besides, I mostly cut fresh sheets, where ohmic works perfectly.
 net parport-ohmic parport.0.pin-11-in-not => or2.0.in0
-net xbox-y or2.0.in1
+
+# We'll make the button only activate during a probe move, so that we don't
+# accidentally bump it during a program and raise an unexpected probe error.
+# We could do this test by and2'ing with the HAL pin for our disconnect relay,
+# but for demonstration purposes, I'm going to do the more "technically
+# correct" method, of checking if the machine is currently doing a probe move.
+# See the motion manpage for a list of motion-type values.
+
+net xbox-y and2.0.in0
+
+setp bitwise.0.in0 5
+net motiontype motion.motion-type => conv-s32-u32.0.in
+net unsigned-motiontype conv-s32-u32.0.out => bitwise.0.in1
+net probetobit bitwise.0.out-xor => conv-u32-bit.0.in
+net bitflip conv-u32-bit.0.out => not.0.in
+net isprobing not.0.out => and2.0.in1
+net backupprobe and2.0.out => or2.0.in1
 
 net ohmic-found or2.0.out => motion.probe-input
 
