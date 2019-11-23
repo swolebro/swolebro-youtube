@@ -3,6 +3,17 @@
 
 net laser-button pyvcp.laser-button => logic.0.in-01
 
+# Indicators for THC. Unlike thcud, these don't shut themselves off
+# when the torch is off, so we do it for them. Simply cosmetic.
+
+net thc-up => and2.1.in0
+net spindle-on => and2.1.in1
+net led-up and2.1.out => pyvcp.led-up
+
+net thc-down => and2.2.in0
+net spindle-on => and2.2.in1
+net led-down and2.2.out => pyvcp.led-down
+
 # Give us an indicator for when we make ohmic contact.
 net ohmic-found => pyvcp.led-ohmic
 

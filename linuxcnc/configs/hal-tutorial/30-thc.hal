@@ -18,7 +18,7 @@
 # Personally, I'm a fan of KISS. Also Kernighan's Law.
 # I need things to be at least as dumb as I am - preferably even more dumber.
 loadrt or2 count=3
-loadrt and2
+loadrt and2 count=3
 loadrt not
 loadrt conv_u32_bit
 loadrt conv_s32_u32
@@ -29,6 +29,8 @@ addf or2.0 servo-thread
 addf or2.1 servo-thread
 addf or2.2 servo-thread
 addf and2.0 servo-thread
+addf and2.1 servo-thread
+addf and2.2 servo-thread
 addf not.0 servo-thread
 addf conv-u32-bit.0 servo-thread
 addf conv-s32-u32.0 servo-thread
