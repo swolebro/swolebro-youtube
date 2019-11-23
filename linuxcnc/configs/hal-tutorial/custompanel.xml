@@ -31,6 +31,41 @@
     </led>
   </labelframe>
 
+  <labelframe text="Correction Amount">
+    <font>("Helvetica",10)</font>
+    <spinbox>
+      <halpin>"correction-amount"</halpin>
+      <min_>0</min_>
+      <max_>.00020</max_>
+      <initval>0.00005</initval>
+      <resolution>0.00001</resolution>
+      <format>"0.5f"</format>
+      <font>("Arial",14)</font>
+    </spinbox>
+  </labelframe>
+
+  <labelframe text="Velocity Tol">
+    <font>("Helvetica",10)</font>
+    <spinbox>
+      <halpin>"velocity-tol"</halpin>
+      <min_>0</min_>
+      <max_>100</max_>
+      <initval>30</initval>
+      <resolution>1</resolution>
+      <format>"1.0f"</format>
+      <font>("Arial",14)</font>
+    </spinbox>
+  </labelframe>
+
+  <labelframe text="Offset">
+    <font>("Helvetica",10)</font>
+    <number>
+      <halpin>"thc-offset"</halpin>
+      <font>("Helvetica",16)</font>
+      <format>"+4.4f"</format>
+    </number>
+  </labelframe>
+
   <labelframe text="Crosshairs">
     <font>("Helvetica",10)</font>
     <checkbutton>

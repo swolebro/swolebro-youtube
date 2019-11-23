@@ -17,6 +17,25 @@ net led-down and2.2.out => pyvcp.led-down
 # Give us an indicator for when we make ohmic contact.
 net ohmic-found => pyvcp.led-ohmic
 
+# Contrary to the name, this isn't so much a correction velocity as it is
+# the amount of correction applied every time the signal is read. The resulting
+# velocity then depends on how fast your servo-thread runs.
+
+# Too low, and your corrections won't be fast enough to keep up. Too high, and
+# they will overshoot, possibly drastically. For example, if your servo thread
+# runs every 1ms, and you set this to .001, then your machine could register a
+# 1" offset in a second - far more than it probably needs and far faster than
+# it could even keep up with.
+net thc-correction-vel pyvcp.correction-amount => thcud.correction-vel
+
+# The velocity-tol specifies the amount of slack you can have in your
+# velocity, with thcud still operating. eg. "30" means it operates at
+# 70% speed or higher. The other two are standard connections.
+net thc-velocity-tol pyvcp.velocity-tol => thcud.velocity-tol
+
+# The offset we apply via thcud.
+net thc-offset thcud.cur-offset => pyvcp.thc-offset
+
 # Hook up two more XBox 360 buttons to MDI commands.
 net xbox-rb halui.mdi-command-00 # Zero out X,Y.
 net xbox-lpad halui.mdi-command-01 # Zero out Z.

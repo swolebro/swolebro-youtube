@@ -89,22 +89,10 @@ setp thcud.arc-ok TRUE
 # Standard hookups used for enforcing corner-locking.
 net thc-current-vel motion.current-vel => thcud.current-vel
 net thc-requested-vel motion.requested-vel => thcud.requested-vel
-setp thcud.velocity-tol 30
 
 # Apart from the "enable" check, there's a secondary check
 # to only compute and apply offsets while the torch is running.
 net spindle-on thcud.torch-on
-
-# Contrary to the name, this isn't so much a correction velocity as it is
-# the amount of correction applied every time the signal is read. The resulting
-# velocity then depends on how fast your servo-thread runs.
-
-# Too low, and your corrections won't be fast enough to keep up. Too high, and
-# they will overshoot, possibly drastically. For example, if your servo thread
-# runs every 1ms, and you set this to .001, then your machine could register a
-# 1" offset in a second - far more than it probably needs and far faster than
-# it could even keep up with.
-setp thcud.correction-vel 0.00005
 
 # This is important.
 # This keeps our direct commands to stepgen from trying to go
