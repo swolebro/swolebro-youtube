@@ -1,9 +1,21 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <pyvcp>
+
+  <labelframe text="Ohmic Contact">
+    <font>("Helvetica",10)</font>
+    <led>
+        <halpin>"led-ohmic"</halpin>
+        <size>25</size>
+        <on_color>"green"</on_color>
+        <off_color>"red"</off_color>
+    </led>
+  </labelframe>
+
   <labelframe text="Crosshairs">
     <font>("Helvetica",10)</font>
     <checkbutton>
         <halpin>"laser-button"</halpin>
     </checkbutton>
   </labelframe>
+
 </pyvcp>
