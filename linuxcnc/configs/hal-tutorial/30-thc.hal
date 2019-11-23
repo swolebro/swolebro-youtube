@@ -17,21 +17,22 @@
 
 # Personally, I'm a fan of KISS. Also Kernighan's Law.
 # I need things to be at least as dumb as I am - preferably even more dumber.
-
-loadrt or2
-loadrt bitwise
-loadrt conv_u32_bit
-loadrt conv_s32_u32
+loadrt or2 count=3
 loadrt and2
 loadrt not
+loadrt conv_u32_bit
+loadrt conv_s32_u32
+loadrt bitwise
 loadrt thcud
 
 addf or2.0 servo-thread
-addf bitwise.0 servo-thread
-addf conv-u32-bit.0 servo-thread
-addf conv-s32-u32.0 servo-thread
+addf or2.1 servo-thread
+addf or2.2 servo-thread
 addf and2.0 servo-thread
 addf not.0 servo-thread
+addf conv-u32-bit.0 servo-thread
+addf conv-s32-u32.0 servo-thread
+addf bitwise.0 servo-thread
 addf thcud servo-thread
 
 # ==== Probing ====
@@ -83,11 +84,10 @@ setp thcud.enable TRUE
 # Bypass this thcud check, since I don't have an arc-ok signal.
 setp thcud.arc-ok TRUE
 
-# We're gonna start off with manual torch height control via the XBox 360
-# controller. So, we will also bypass the thcud velocity checks.
-setp thcud.current-vel 1
-setp thcud.requested-vel 1
-setp thcud.velocity-tol 1
+# Standard hookups used for enforcing corner-locking.
+net thc-current-vel motion.current-vel => thcud.current-vel
+net thc-requested-vel motion.requested-vel => thcud.requested-vel
+setp thcud.velocity-tol 30
 
 # Apart from the "enable" check, there's a secondary check
 # to only compute and apply offsets while the torch is running.
@@ -122,5 +122,15 @@ net thc-pos-out thcud.z-pos-out => stepgen.2.position-cmd
 net thc-pos-fb thcud.z-fb-out => axis.2.motor-pos-fb
 
 # Lastly, our signals for up and down.
-net xbox-x thcud.torch-up
-net xbox-a thcud.torch-down
+# We'll listen to either the XBox controller (manual THC) or
+# the parport (where I have my DIY Arduino THC). thcud is
+# smart enough to ignore any inputs if the torch isn't running,
+# so the fact the Arduino is continually yelling "UP!!!"
+# (because torch off = 0V = too low) doesn't matter.
+net xbox-x => or2.1.in0
+net parport-up parport.0.pin-12-in-not => or2.1.in1
+net thc-up or2.1.out => thcud.torch-up
+
+net xbox-a => or2.2.in0
+net parport-down parport.0.pin-13-in-not => or2.2.in1
+net thc-down or2.2.out => thcud.torch-down
