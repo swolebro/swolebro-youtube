@@ -1,0 +1,22 @@
+o<cut> sub
+; Subroutine for cutting. Arguments below.
+; Note that arguments require brackets, eg:
+; o<cut> call [0.15] [0.02] [0.06] [100]
+
+#<pierce> = #1
+#<delay> = #2
+#<cut> = #3
+#<feed> = #4
+
+M65 P1 (ensure probe circuit is off)
+
+G0 Z#<pierce>
+G4 P0.1
+M3
+G4 P#<delay>
+G0 Z#<cut>
+G1 F#<feed>
+
+o<cut> endsub
+
+M2
