@@ -8,12 +8,25 @@
 loadusr -W hal_input -KRAL Microsoft
 
 # This pins are most easily discovered using halmeter.
-# For now, we're just gonna wire up XABY to signals.
 
 net xbox-x input.0.btn-x
 net xbox-a input.0.btn-a
 net xbox-y input.0.btn-y
 net xbox-b input.0.btn-b
+
+# HAL calls the top right button tr (trigger right?), whereas
+# the controller itself labels it RB (right button?) and the
+# one beneath it as RT (right trigger?). I'm going with the
+# conventions on the controller.
+net xbox-rb input.0.btn-tr
+
+# The RT button has a potentiometer slide, so we're gonna check
+# if it's depressed at all, and use that as a boolean.
+net xbox-rt input.0.abs-rz-is-pos
+
+# Here we have left and right on the D-pad.
+net xbox-lpad input.0.abs-hat0x-is-neg
+net xbox-rpad input.0.abs-hat0x-is-pos
 
 # QJoypad will be used to turn several of the other buttons into
 # keystrokes instead, which the AXIS GUI will interpret as shortcuts.
