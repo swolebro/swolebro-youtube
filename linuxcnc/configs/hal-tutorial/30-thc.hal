@@ -1,0 +1,23 @@
+# HAL configurations for torch height control.
+# Right now, that's just ohmic probing. THC comes next.
+
+loadrt or2
+addf or2.0 servo-thread
+
+# Use M64 P1 to trigger this relay for activating the ohmic probe circuit. This
+# **must** be disabled (M65 P1) before cutting, or the plasma voltage will kill
+# your parport pin. (Ask me how I know.) We'll use some subroutines to handle
+# that, and reduce the risk of fuckups.
+net enable-probe motion.digital-out-01 => parport.0.pin-17-out
+setp parport.0.pin-17-out-invert 1
+
+# For ohmic probing, we're gonna multiplex one input pin on the parport board,
+# alongside the XBox 360 Y button. That button will give us a backup we can
+# activate in case we're cutting painted or rusty material with poor electrical
+# contact. In those cases, a floating torch mount with a microswitch would be
+# better, but I haven't added that to my machine yet, so babysitting will do.
+# Besides, I mostly cut fresh sheets, where ohmic works perfectly.
+net parport-ohmic parport.0.pin-11-in-not => or2.0.in0
+net xbox-y or2.0.in1
+
+net ohmic-found or2.0.out => motion.probe-input
