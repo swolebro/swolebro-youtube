@@ -1,0 +1,19 @@
+As discussed in the videos, the thcud component included in LinuxCNC is a
+little bit janky. So, to pile hack upon hack, I went and put a gist up on
+GitHub with some fixes, that will be important if you want to use all the same
+features I do, particularly in the PyVCP panel.
+
+You can install that with the following command line calls:
+
+wget https://gist.github.com/swolebro/483973b2081784baca9f04a9a95c6cea/archive/master.zip
+unzip master.zip
+cd 483973b2081784baca9f04a9a95c6cea-master/
+sudo halcompile --install thcud.comp
+
+I might try and get these changes included in the project, but they won't
+come around until at least LinuxCNC 2.8 in that case, and even that could
+take a while.
+
+The component file is kept in a separate GitHub gist for licensing reasons.
+It's free software under the GPL, whereas this project is open source non-free
+software, as discussed in the videos.
