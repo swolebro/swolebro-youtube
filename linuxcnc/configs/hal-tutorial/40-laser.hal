@@ -1,7 +1,15 @@
-# Hook up this virtual pin in the motion component to our physical pin
-# on the parallel port breakout board. Now M62-M65 (with P0) will
-# trigger the attached relay and turn on the laser crosshairs.
-net laser motion.digital-out-00 => parport.0.pin-16-out
+# To have multiple inputs for controlling our parport pin, we'll
+# need a way to combine them. or2 is the simplest one for that.
+
+loadrt or2
+addf or2.0 servo-thread
+
+# We move our gcode-controlled HAL pin to one side of the boolean or.
+# The PyVCP HAL pin comes later.
+net laser-gcode motion.digital-out-00 => or2.0.in0
+
+# And now the or2's output is what controls the laser relay.
+net laser or2.0.out => parport.0.pin-16-out
 
 # Invert because my relays switch when the input is driven low.
 setp parport.0.pin-16-out-invert 1

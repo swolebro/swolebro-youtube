@@ -1,4 +1,4 @@
-# Include your customized HAL commands here
-# The commands in this file are run after the AXIS GUI (including PyVCP panel) starts
+# Our custompanel.xml gives us one checkbox that we can now access
+# as a HAL pin, and wire up as the second laser control option.
 
-sets spindle-at-speed true
+net laser-button pyvcp.laser-button => or2.0.in1
