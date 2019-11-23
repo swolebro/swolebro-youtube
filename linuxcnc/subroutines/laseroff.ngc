@@ -1,0 +1,18 @@
+o<laseroff> sub
+
+; These offsets were measured by cutting a + shape, with two straight lines,
+; intersecting at 0,0. Then, lining up the laser diode with those lines, and
+; checking what the DRO said. It's at least good enough for a CNC plasma.
+
+#<xoff> = -3.6286
+#<yoff> = 1.6661
+
+; These variables are built-in (and aliases for 5420, 5421).
+; Save them now so we still have these values after G92.
+#<x> = #<_x>
+#<y> = #<_y>
+
+G92 X[#<_x> + #<xoff>] Y[#<_y> + #<yoff>]
+G0 X#<x> Y#<y>
+
+o<laseroff> endsub

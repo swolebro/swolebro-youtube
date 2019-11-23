@@ -4,6 +4,6 @@
 net laser-button pyvcp.laser-button => logic.0.in-01
 
 # Hook up two more XBox 360 buttons to MDI commands.
-# The choice in buttons will make more sense later.
 net xbox-rb halui.mdi-command-00 # Zero out X,Y.
 net xbox-lpad halui.mdi-command-01 # Zero out Z.
+net xbox-rt halui.mdi-command-02 # Remove offset from laser.
