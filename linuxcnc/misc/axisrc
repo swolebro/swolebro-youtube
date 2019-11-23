@@ -1,0 +1,24 @@
+# This is a Python file using Tkinter library calls
+# to make the LinuxCNC Axis GUI better. As per the
+# setting in our INI file, put this at $HOME/.axisrc
+
+
+# Having "r" be "run" and "ctrl+r" be "reload"
+# is just plain stupid and dangerous. Stop that.
+root_window.unbind("r")
+
+# Disable the motherfucking feed override keys.
+# Global hotkeys of mine make these far too
+# easy to trip by accident.
+for key in range(10):
+  root_window.unbind("%s" % key)
+
+# The feed override keys overlap with the axis
+# selection keys, when the machine is powered on.
+# The thing above disables the axis selection
+# shortcut for two of the axes, so for consistency,
+# we'll disable the shortcut for the remaining one.
+root_window.unbind("`")
+
+# Yes, I really want to quit. Stop asking, for fuck's sake.
+root_window.tk.call("wm","protocol",".","WM_DELETE_WINDOW","destroy .")
