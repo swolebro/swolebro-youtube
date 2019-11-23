@@ -1,4 +1,4 @@
 # Our custompanel.xml gives us one checkbox that we can now access
 # as a HAL pin, and wire up as the second laser control option.
 
-net laser-button pyvcp.laser-button => or2.0.in1
+net laser-button pyvcp.laser-button => logic.0.in-01

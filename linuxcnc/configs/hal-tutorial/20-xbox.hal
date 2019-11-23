@@ -1,0 +1,20 @@
+# Load the component for my xbox 360 controller.  -KRAL means load all keys;
+# see `man hal_input` "Microsoft" is used as matching string; again, see the
+# manpage.
+
+# This is a loadusr instead of loadrt since it's a separate userspace
+# process that monitors the signals from the controller.
+
+loadusr -W hal_input -KRAL Microsoft
+
+# This pins are most easily discovered using halmeter.
+# For now, we're just gonna wire up XABY to signals.
+
+net xbox-x input.0.btn-x
+net xbox-a input.0.btn-a
+net xbox-y input.0.btn-y
+net xbox-b input.0.btn-b
+
+# QJoypad will be used to turn several of the other buttons into
+# keystrokes instead, which the AXIS GUI will interpret as shortcuts.
+# That cuts back on the amount of HAL we need to do.

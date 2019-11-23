@@ -1,15 +1,21 @@
-# To have multiple inputs for controlling our parport pin, we'll
-# need a way to combine them. or2 is the simplest one for that.
+# To do a 3-way multiplex, we get into some more advanced logical operators.
+# The "logic" component is set up with a 3-digit (hexadecimal) "personality",
+# which defines how many inputs it takes and what the operation is.
 
-loadrt or2
-addf or2.0 servo-thread
+# Here, that leading 2 means it's an "or" and the "03" means it takes three
+# inpus. As another example, 0x10f would be "and" (leading 1) and take 15
+# inputs ("0f", in hexadecimal). See the manpage for more detail.
 
-# We move our gcode-controlled HAL pin to one side of the boolean or.
-# The PyVCP HAL pin comes later.
-net laser-gcode motion.digital-out-00 => or2.0.in0
+loadrt logic count=1 personality=0x203
+addf logic.0 servo-thread
 
-# And now the or2's output is what controls the laser relay.
-net laser or2.0.out => parport.0.pin-16-out
+# We wire these up similar to before.
+# The PyVCP HAL pin still comes later.
+net laser-gcode motion.digital-out-00 => logic.0.in-00
+net xbox-b logic.0.in-02
+
+# And now the logic's output is what controls the laser relay.
+net laser logic.0.or => parport.0.pin-16-out
 
 # Invert because my relays switch when the input is driven low.
 setp parport.0.pin-16-out-invert 1
