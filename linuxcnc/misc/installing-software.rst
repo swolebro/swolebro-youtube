@@ -1,3 +1,6 @@
+Installing Software
+===================
+
 LinuxCNC is based on Debian, a Linux distribution that is also the foundation of
 other more popular ones, such as Ubuntu and Mint. To install most software in
 this distro, you will use the ``apt-get`` tool. You can read more about that on
@@ -44,10 +47,12 @@ Here are a few that I've personally installed::
 
 Other files in here might more detail on how to use these.
 
-.. note::
-    Supposedly, LinuxCNC v2.8 and v2.9-prerelease can both be run on newer
-    versions of Ubuntu and Mint bases, but the "stable" release of 2.7.14
-    cannot, and I don't personally have experience in doing that yet.
+Note
+====
 
-    If anyone wants to point me towards how that's done, or contribute docs
-    here on how to do that, please open either an issue or a pull request.
+Supposedly, LinuxCNC v2.8 and v2.9-prerelease can both be run on newer
+versions of Ubuntu and Mint bases, but the "stable" release of 2.7.14
+cannot, and I don't personally have experience in doing that yet.
+
+If anyone wants to point me towards how that's done, or contribute docs
+here on how to do that, please open either an issue or a pull request.

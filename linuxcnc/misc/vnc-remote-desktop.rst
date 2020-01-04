@@ -1,3 +1,6 @@
+VNC Remote Desktop
+==================
+
 A VNC server can let you access your LinuxCNC installation remotely, with all
 the graphical bells and whistles. This is nice for either working on that
 computer while sitting in the office (vs. the shop), and it can let you use a
@@ -135,3 +138,9 @@ it works. For instructions on how to enable the beep command, see ``beep.rst``,
 and then use the following in your autostart file::
 
 		Exec=bash -c "(sleep 10; beep)& /usr/lib/vino/vino-server"
+
+Note
+====
+
+Some users like using ``x11vnc`` as their VNC server on general Linux systems,
+but I have no experience with that, let alone on LinuxCNC.
