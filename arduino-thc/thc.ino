@@ -48,6 +48,7 @@ byte segmentPins[8] = {13, 8, 4, 6, 7, 11, 3, 5};
 
 // Threshold in ADC counts for when we say the torch is out of range.
 // Multiply by SCALE for the threshold in volts.
+// FYI: Some degree of buffer is needed to prevent awful see-sawing.
 #define THRESH 5
 
 // Adjustment range for the knob.
@@ -73,6 +74,7 @@ unsigned long target = 0; // voltage target, in ADC counts
 
 // for tracking when to set opto pins
 int diff = 0;
+int mean = 0;
 int mode = -1;
 
 // generic temp vars
@@ -177,33 +179,44 @@ void loop() {
   values[i] = tmp;
 
   // This mean truncates downwards. Oh well. At least it's fast.
-  diff = ((total >> shift) - target);
+  mean = total >> shift;
+  diff = mean - target;
 
-  // Set pins as per reading. Set 0's first to turn off one direction before turning on reverse.
-  // Checking for current setting before flipping saves a few cycles. We should never have both
-  // the UP and DOWN pins set to 1 - that would be nonsense.
-  if (diff > THRESH) {
+  // If the mean is very low, then the plasma is turned off - it's just ADC
+  // noise you're seeing and it and should be ignored.
+  // This effectively checks if it's less than 2^4, ie. 16 counts, or ~3V with my scale factor.
+  if (!(mean>>4)) {
+      mode = 0;
+      digitalWrite(UP, 0);
+      digitalWrite(DOWN, 0);
+  }
+
+  // Otherwise, set pins as per reading.
+  // Set 0's first to turn off one direction before turning on reverse.
+  // We should never have both the UP and DOWN pins set to 1 - that would be nonsense.
+  // Checking for current setting before flipping saves a few cycles.
+  else if (diff > THRESH) {
     if (mode != 2) {
       mode = 2;
       digitalWrite(UP, 0);
       digitalWrite(DOWN, 1);
     }
+  }
 
-  } else if (diff < -THRESH) {
+  else if (diff < -THRESH) {
     if (mode != 1) {
       mode = 1;
       digitalWrite(DOWN, 0);
       digitalWrite(UP, 1);
     }
+  }
 
-  } else {
-    if (mode != 0) {
+  else {
       mode = 0;
       digitalWrite(UP, 0);
       digitalWrite(DOWN, 0);
-    }
-
   }
+
 
   // Every DISP reads, update what's displayed on the screen with a slower average.
   // This would be roughly 5 or 6 times per second at our current speeds.
