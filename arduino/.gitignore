@@ -1,0 +1,23 @@
+# Build options for arduino-builder, a CLI compiler frontend for Arduinos.
+# Every project directory gets one of these, and they're pretty vanilla, but
+# they need to include an absolute path that includes my username/real name, so
+# can't commit them here.
+build.options.json
+
+# Output directories for arduino-builder.
+build
+
+# Used like so, at least for Arduino Nanos:
+# arduino-builder -build-options-file build.options.json -build-path $(realpath build) ${project}.ino
+# avrdude -C/etc/avrdude.conf -v -v -v -v -patmega328p -carduino -P/dev/ttyUSB0 -b57600 -D -Uflash:w:./out/${project}.ino.hex
+
+# Build options is a file like so:
+
+# {
+#   "fqbn": "arduino:avr:nano:cpu=atmega328:mcu=atmega328p",
+#   "builtInLibrariesFolders": "/home/swolebro/.local/share/arduino/libraries",
+#   "hardwareFolders": "/usr/share/arduino/hardware",
+#   "toolsFolders": "/usr/bin"
+# }
+
+
