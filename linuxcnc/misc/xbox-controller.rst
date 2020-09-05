@@ -18,11 +18,13 @@ no package for QJoypad whatsoever. So, what we can do instead is
 manually download the package for Debian Jessie (v8), install it,
 and hope it's close enough it works. (It does.)
 
-`Here's the page`_ for the package details. Note that you're going to want to
-install the i386 version even if your processor is 64-bit (aka. amd64 or i686),
-because the LinuxCNC distro you downloaded is almost assuredly i386.
+`Here's the page`_ for the package details. Go down to the bottom and
+(probably) select the link for the i386 architecture, then pick your mirror.
+Note that you're going to want to install the i386 version even if your
+processor is 64-bit (aka. amd64 or i686), because the LinuxCNC distro you
+downloaded is almost assuredly i386.
 
-.. _Here's the page: https://debian.pkgs.org/8/debian-main-i386/qjoypad_4.1.0-1_i386.deb.html
+.. _Here's the page: https://packages.debian.org/jessie/qjoypad
 
 You can try the amd64 first if you want to make really-really sure. If it's the
 wrong architecture, it'll refuse to install at all. No harm, no foul.
